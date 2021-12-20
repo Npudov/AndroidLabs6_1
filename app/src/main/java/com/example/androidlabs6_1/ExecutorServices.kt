@@ -1,18 +1,20 @@
 package com.example.androidlabs6_1
 
+import android.app.Application
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.Future
 
 class ExecutorServices: AppCompatActivity() {
     var secondsElapsed: Int = 0
     lateinit var textSecondsElapsed: TextView
     private val TAG = "Thread status"
     private val statusActivity = "Activity status"
-    private lateinit var executorService: ExecutorService
+    private lateinit var futureBackground: Future<*>
 
 
 
@@ -43,17 +45,13 @@ class ExecutorServices: AppCompatActivity() {
 
     override fun onStart() {
         Log.i(TAG, "On start: seconds elapsed = $secondsElapsed")
-        executorService = Executors.newFixedThreadPool(1)
-        executorService.execute{
-            try {
-                while (!executorService.isShutdown) {
-                    Log.i("MainActivity", "${Thread.currentThread()} is active")
-                    textSecondsElapsed.post {
-                        textSecondsElapsed.text = getString(R.string.seconds, secondsElapsed++)
-                    }
-                    Thread.sleep(1000)
+        futureBackground = (applicationContext as ForExecutor).executor.submit {
+            while (!futureBackground.isCancelled) {
+                textSecondsElapsed.post {
+                    textSecondsElapsed.text = getString(R.string.seconds, secondsElapsed++)
                 }
-            } catch (e: Exception) {}
+                Thread.sleep(1000)
+            }
         }
         Log.i(statusActivity, "MainActivity: onStart()")
         super.onStart()
@@ -62,16 +60,22 @@ class ExecutorServices: AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         Log.i(TAG, "On stop: seconds elapsed = $secondsElapsed")
-        executorService.shutdown()
+        futureBackground.cancel(true)
+        if (futureBackground.isCancelled) {
+            Log.i(TAG, "Thread interrupted")
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         Log.i(statusActivity, "MainActivity: onDestroy()")
-        executorService.shutdown()
     }
 
     companion object {
         const val SECONDS = "seconds"
     }
+}
+
+class ForExecutor: Application() {
+    val executor: ExecutorService = Executors.newSingleThreadExecutor()
 }

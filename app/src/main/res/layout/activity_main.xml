@@ -9,7 +9,6 @@
         android:id="@+id/textSecondsElapsed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hello_world"
         tools:layout_editor_absoluteX="332dp"
         tools:layout_editor_absoluteY="196dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -52,7 +52,6 @@ class MainActivity : AppCompatActivity() {
                     Thread.sleep(1000)
                 }
             } catch (e: InterruptedException) {
-                Thread.currentThread().interrupt()
             }
         }
         backgroundThread.start()
@@ -64,12 +63,14 @@ class MainActivity : AppCompatActivity() {
         super.onStop()
         Log.i(TAG, "On stop: seconds elapsed = $secondsElapsed")
         backgroundThread.interrupt()
+        if (backgroundThread.isInterrupted) {
+            Log.i(TAG, "Thread interrupted")
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         Log.i(statusActivity, "MainActivity: onDestroy()")
-        backgroundThread.interrupt()
     }
 
     companion object {

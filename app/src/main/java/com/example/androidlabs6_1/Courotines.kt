@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -16,7 +17,7 @@ class Courotines: AppCompatActivity() {
     lateinit var textSecondsElapsed: TextView
     private val TAG = "Thread status"
     private val statusActivity = "Activity status"
-
+    private lateinit var job : Job
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,13 +26,11 @@ class Courotines: AppCompatActivity() {
         textSecondsElapsed = findViewById(R.id.textSecondsElapsed)
         Log.i(statusActivity, "MainActivity: onCreate()")
         Log.i(TAG, "On create: seconds elapsed = $secondsElapsed")
-        lifecycleScope.launch {
+        job = lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 while (isActive) {
                     Log.i("MainActivity", "Courotine is active")
-                    textSecondsElapsed.post {
-                        textSecondsElapsed.text = getString(R.string.seconds, secondsElapsed++)
-                    }
+                    textSecondsElapsed.text = getString(R.string.seconds, secondsElapsed++)
                     delay(1000)
                 }
             }
